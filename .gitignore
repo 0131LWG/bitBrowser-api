@@ -1,0 +1,14 @@
+/.vscode/settings.json
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.DS_Store
+/yarn.lock
+# .gitmodules
+.history
+node_modules
