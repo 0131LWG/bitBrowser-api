@@ -32,22 +32,22 @@ async function searchGame(name) {
   }
 }
 
-async function goGameChat(name) {
+async function goGameChat() {
   await delay(3000)
 
   // 点击进入游戏聊天室
   const enterDom = await currentPage.$(".rows-wrapper .new-message-wrapper .new-message-bot-commands")
+  console.log("enterDom---", enterDom)
   if (enterDom) {
     await enterDom.click()
   }
 
   await delay(3000)
 
-  if (await currentPage.$(".popup-buttons")) {
+  if (await currentPage.$(".popup-button.btn.primary.rp")) {
     // 点击 "Launch" 按钮
-    const launchDialogText = await currentPage.$(".popup-buttons")
-    const launchDialogTextChildren = launchDialogText.children[0]
-    await launchDialogTextChildren.click()
+    const launchDialogText = await currentPage.$(".popup-button.btn.primary.rp")
+    await launchDialogText.click()
   }
   await changeFrame()
 }
@@ -80,7 +80,6 @@ async function openCardTask() {
   await delay(3000)
   // 点击任务卡片上的Open
   const earnCardOpenList = await gameFrame.$$(".pages-tasks-pill.is-status-not-started.is-dark")
-  console.log("🚀 ~ openCardTask ~ earnCardOpenList:", earnCardOpenList)
   for (openButton of earnCardOpenList) {
     await openButton.click()
     const earnCardStartList = await gameFrame.$$(".nested-tasks>.pages-tasks-list-item-label .container .pill-btn")
@@ -94,6 +93,7 @@ async function openCardTask() {
       }
       // 跳转到其他页面去了
       if (currentPage.url().indexOf("https://web.telegram.org/") === -1) {
+        console.log("-----------------------------------------------", currentPage.url())
         // 切换回原来的页面
         currentPage.bringToFront()
       }
@@ -201,6 +201,5 @@ async function goGame(name, page, browser) {
 }
 
 module.exports = {
-  goGame,
-  searchGame
+  goGame
 }

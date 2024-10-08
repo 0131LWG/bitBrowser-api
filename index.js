@@ -9,6 +9,7 @@ const { delay, getOpenBrowserPid } = require("./utils")
 const { goGame } = require("./blum")
 const puppeteer = require("puppeteer")
 const { browserList } = require("./browser")
+const fs = require("fs")
 
 // 主程序
 main()
@@ -45,6 +46,7 @@ async function connect(res, id) {
   let wsEndpoint = res.data.ws
   const browserItem = browserList.find((item) => item.id === id)
   browserItem.browserWSEndpoint = wsEndpoint
+  await writeBrowser(browserList)
   try {
     const browser = await puppeteer.connect({
       browserWSEndpoint: wsEndpoint,
@@ -52,12 +54,29 @@ async function connect(res, id) {
     })
     // 具体业务代码
     const pages = await browser.pages()
-    await pages.evaluate((browserList) => {
-      localStorage.setItem("browserList", JSON.stringify(browserList))
-    }, browserList)
+    const page = pages.find((page) => {
+      return page.url().indexOf("https://web.telegram.org/") !== -1
+    })
     await delay(5000)
-    await goGame("Blum", pages[0], browser)
+    await goGame("Blum", page, browser)
   } catch (err) {
     console.error(err)
   }
+}
+
+async function writeBrowser(browserList) {
+  const filePath = "./browser.js"
+  // 将数组对象转换为 JSON 字符串
+  const jsonData = JSON.stringify({ browserList }, null, 2)
+  // 将 JSON 字符串包装成 module.exports 语句
+  const fileContent = `module.exports = ${jsonData};`
+
+  // 使用 fs.writeFile 写入文件
+  fs.writeFile(filePath, fileContent, (err) => {
+    if (err) {
+      console.error("写入文件时出错：", err)
+    } else {
+      console.log("文件写入成功！")
+    }
+  })
 }
