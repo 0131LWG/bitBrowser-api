@@ -6,15 +6,17 @@
 
 const { openBrowser, closeBrowser, createBrowser, deleteBrowser, getBrowserDetail, addGroup, editGroup, deleteGroup, getGroupDetail, getGroupList, getBrowserList, getPids, updatepartial, updateBrowserMemark, deleteBatchBrowser, getBrowserConciseList, getAlivePids, getAliveBrowsersPids, batchUpdateBrowserGroup, closeBrowsersBySeqs, batchUpdateProxy, runRPA } = require("./request")
 const { delay, getOpenBrowserPid } = require("./utils")
-const { goGame } = require('./blum')
+const { goGame } = require("./blum")
 const puppeteer = require("puppeteer")
+const { browserList } = require("./browser")
 
 // 主程序
 main()
 
 async function main() {
-  const id = "4fc4df25f5db4df6b0c9a6ddeb7d1b30"
-  await openBrowserAndConnect(id)
+  browserList.forEach(async (browser) => {
+    await openBrowserAndConnect(browser.id)
+  })
 }
 
 async function openBrowserAndConnect(id) {
@@ -41,6 +43,8 @@ async function openBrowserAndConnect(id) {
 
 async function connect(res, id) {
   let wsEndpoint = res.data.ws
+  const browserItem = browserList.find((item) => item.id === id)
+  browserItem.browserWSEndpoint = wsEndpoint
   try {
     const browser = await puppeteer.connect({
       browserWSEndpoint: wsEndpoint,
@@ -48,10 +52,12 @@ async function connect(res, id) {
     })
     // 具体业务代码
     const pages = await browser.pages()
+    await pages.evaluate((browserList) => {
+      localStorage.setItem("browserList", JSON.stringify(browserList))
+    }, browserList)
     await delay(5000)
-    await goGame('Blum', pages[0])
+    await goGame("Blum", pages[0], browser)
   } catch (err) {
     console.error(err)
   }
 }
-

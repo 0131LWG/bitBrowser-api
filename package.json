@@ -7,7 +7,7 @@
     "axios": "^0.26.1",
     "chrome-remote-interface": "^0.33.2",
     "chromedriver": "^110.0.0",
-    "puppeteer": "^13.5.2",
+    "puppeteer": "13",
     "selenium-webdriver": "^4.1.1"
   },
   "scripts": {
